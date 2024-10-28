@@ -211,46 +211,51 @@
         };
 
         function searchInPdfs(searchTerm) {
-            displayedFiles = [];
-            const promises = allFiles.map(file => {
-                const url = `/uploads/${file}`;
-                return new Promise((resolve) => {
-                    const loadingTask = pdfjsLib.getDocument(url);
-                    loadingTask.promise.then(pdf => {
-                        let textContent = '';
-                        const numPages = pdf.numPages;
+    displayedFiles = [];            
+    const searchWords = searchTerm.toLowerCase().split(' '); // חצי את המחרוזת למילים
+    const promises = allFiles.map(file => {
+        const url = `/uploads/${file}`;
+        return new Promise((resolve) => {
+            const loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(pdf => {
+                let textContent = '';
+                const numPages = pdf.numPages;
 
-                        const pagePromises = [];
-                        for (let i = 1; i <= numPages; i++) {
-                            pagePromises.push(pdf.getPage(i).then(page => {
-                                return page.getTextContent().then(content => {
-                                    content.items.forEach(item => {
-                                        textContent += item.str + ' ';
-                                    });
-                                });
-                            }));
-                        }
-
-                        Promise.all(pagePromises).then(() => {
-                            if (textContent.toLowerCase().includes(searchTerm)) {
-                                displayedFiles.push(file);
-                            }
-                            resolve();
+                const pagePromises = [];
+                for (let i = 1; i <= numPages; i++) {
+                    pagePromises.push(pdf.getPage(i).then(page => {
+                        return page.getTextContent().then(content => {
+                            content.items.forEach(item => {
+                                textContent += item.str + ' ';
+                            });
                         });
-                    }).catch(err => {
-                        console.error('שגיאה בטעינת ה-PDF:', err);
-                        resolve();
-                    });
-                });
-            });
+                    }));
+                }
 
-            Promise.all(promises).then(() => {
-                renderTiles(displayedFiles);
+                Promise.all(pagePromises).then(() => {
+                    // בדוק אם כל המילים מופיעות בטקסט
+                    const allWordsFound = searchWords.every(word => textContent.toLowerCase().includes(word));
+                    if (allWordsFound) {
+                        displayedFiles.push(file);
+                    }
+                    resolve();
+                });
+            }).catch(err => {
+                console.error('שגיאה בטעינת ה-PDF:', err);
+                resolve();
             });
-            setTimeout(() => {
-            document.getElementById("h1").innerText="קיימים במערכת "+document.getElementsByClassName("tile").length+" קבצים";
-        }, 1000);
-        }
+        });
+    });
+
+    Promise.all(promises).then(() => {
+        renderTiles(displayedFiles);
+    });
+    
+    setTimeout(() => {
+        document.getElementById("h1").innerText = "קיימים במערכת " + document.getElementsByClassName("tile").length + " קבצים תואמים לחיפוש";
+    }, 500);
+}
+
 
         function highlightSearchTerm(file) {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
