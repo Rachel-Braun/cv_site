@@ -1,0 +1,132 @@
+/* סגנונות בסיסיים לדף */
+
+body {
+    font-family: Arial, sans-serif; /* גופן בסיסי */
+    background-color: #f4f4f4; /* צבע רקע */
+    margin: 0; /* הסרת מרווחים ברירת מחדל */
+    padding: 0; /* הסרת ריפוד ברירת מחדל */
+}
+
+header {
+    background-color: #007bff; /* צבע רקע לכותרת */
+    color: white; /* צבע טקסט */
+    text-align: center; /* מרכז טקסט */
+    padding: 20px; /* ריפוד סביב הכותרת */
+}
+
+main {
+    text-align: center; /* מרכז טקסט */
+    padding: 40px; /* ריפוד סביב התוכן */
+}
+
+.button-container {
+    margin-top: 20px; /* רווח מעל כפתורים */
+}
+
+.button {
+    background-color: #28a745; /* צבע כפתור */
+    color: white; /* צבע טקסט בכפתור */
+    padding: 15px 30px; /* ריפוד סביב הכפתור */
+    margin: 10px; /* רווח בין כפתורים */
+    text-decoration: none; /* הסרת קו תחתון מהכפתור */
+    border-radius: 5px; /* פינות מעוגלות */
+    display: inline-block; /* עיצוב בלוק inline */
+    transition: background-color 0.3s; /* אנימציה לצבע */
+}
+
+.button:hover {
+    background-color: #218838; /* שינוי צבע בכפתור כשמרחפים מעליו */
+}
+/* סגנון עבור כפתור המודל */
+.modal-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-button:hover {
+    background-color: #45a049;
+}
+
+/* סגנון עבור המודל */
+.modal {
+    display: none; /* מוסתר בברירת מחדל */
+    position: fixed; /* נשאר במקום */
+    z-index: 1; /* נמצא מעל תוכן אחר */
+    left: 0;
+    top: 0;
+    width: 100%; /* 100% רוחב */
+    height: 100%; /* 100% גובה */
+    overflow: auto; /* אם התוכן גבוה יותר, גלול */
+    background-color: rgba(0, 0, 0, 0.7); /* צבע רקע שקוף */
+}
+
+/* תוכן המודל */
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto; /* 10% מהחלק העליון, אוטומטי משמאל וימין */
+    padding: 30px;
+    border: 1px solid #888;
+    border-radius: 10px; /* גבולות מעוגלים */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* צללים */
+    width: 400px; /* רוחב קבוע */
+    transition: all 0.3s ease; /* אפקט מעבר */
+}
+
+/* כפתור סגירה */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* סגנון עבור הטופס */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin: 10px 0 5px;
+    font-weight: bold;
+}
+
+input {
+    margin: 5px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* גבולות מעוגלים */
+    transition: border 0.3s;
+}
+
+input:focus {
+    border-color: #4CAF50; /* שינוי צבע גבול כאשר הפוקוס */
+    outline: none; /* הסרת גבול של פוקוס */
+}
+
+button {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px; /* גבולות מעוגלים */
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #45a049; /* שינוי צבע בעת ריחוף */
+}

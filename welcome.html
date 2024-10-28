@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אתר חיפוש עבודה</title>
+    <link rel="stylesheet" href="welcome.css"> <!-- קישור לקובץ CSS -->
+</head>
+<body>
+    <header>
+        <h1>ברוכים הבאים לאתר חיפוש עבודה המוביל בישראל!</h1>
+    </header>
+
+    <main>
+        <p>באתר שלנו תוכלו למצוא הזדמנויות תעסוקה מגוונות או לחפש מועמדים איכותיים לעסק שלכם. </p>
+        <p>אנחנו כאן כדי לחבר בין מחפשי עבודה לבין מעסיקים, עם כלים מתקדמים ואפשרויות חיפוש פשוטות ונוחות.</p>
+        
+        <div class="button-container">
+            <a href="/upload" class="button">מחפש עבודה? העלה קורות חיים כאן</a> <!-- כפתור למחפש עבודה -->
+            <a id="open-login-modal" class="button">מגייסים? פה תמצאו את המגוון הגדול ביותר של קו"ח</a> <!-- כפתור למעסיק -->
+  
+
+<!-- מודל ההתחברות -->
+<div id="login-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>התחברות</h2>
+        <div class="form" id="login-form" action="employer.html" method="post">
+            <label for="username">שם משתמש:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">סיסמא:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <a class="button" href="employer.html" >התחבר</a>
+        </div>
+    </div>
+</div>
+
+        </div>
+    </main>
+    <script>
+        // קוד לפתיחת וסגירת המודל
+const modal = document.getElementById("login-modal");
+const btn = document.getElementById("open-login-modal");
+const span = document.getElementsByClassName("close")[0];
+
+// כשמקליקים על הכפתור, פתח את המודל
+btn.onclick = function() {
+    modal.style.display = "block";
+}
+
+// כשמקליקים על ה-X, סגור את המודל
+span.onclick = function() {
+    modal.style.display = "none";
+}
+
+// כשמקליקים מחוץ למודל, סגור אותו
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+    </script>
+</body>
+</html>

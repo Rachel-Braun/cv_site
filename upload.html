@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>העלאת קובץ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-top: 20px;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>העלאת קובץ</h1>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept="application/pdf" required>
+        <button type="submit">העלה קובץ</button>
+    </form>
+
+    <form>
+        <h2>חדש! בדיקת קורות חיים חינם</h2>
+        <input type="file" name="file" accept="application/pdf" required>
+        <button type="submit">בדיקה</button>
+    </form>
+    
+</body>
+</html>

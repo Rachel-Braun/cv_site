@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>הצגת קבצי PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px;
+            background-color: #f0f0f0; /* צבע רקע כללי */
+        }
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px; /* רווח בין תיבת החיפוש לכפתור */
+        }
+        #search-input {
+            padding: 10px;
+            border: 2px solid #007bff; /* גבול כחול */
+            border-radius: 5px;
+            width: 250px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        #search-input:focus {
+            border-color: #0056b3; /* שינוי צבע הגבול בעת ריכוז */
+            outline: none; /* הסרת הקו סביב */
+        }
+        #search-button {
+            padding: 10px 20px;
+            background-color: #007bff; /* צבע כפתור כחול */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        #search-button:hover {
+            background-color: #0056b3; /* צבע כפתור כהה יותר בעת ריחוף */
+            transform: scale(1.05); /* הגדלה קלה בעת ריחוף */
+        }
+        #tiles-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* מרכז את האריחים */
+            gap: 15px; /* רווח בין האריחים */
+        }
+        .tile {
+            border: 2px solid #007bff; /* גבול כחול */
+            border-radius: 8px;
+            width: 220px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            background-color: #fff; /* צבע רקע לבן */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* צל עדין */
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+        .tile:hover {
+            transform: scale(1.05); /* הגדלה בעת ריחוף */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* צל חזק יותר */
+            cursor: pointer;
+        }
+        .thumbnail {
+            width: 100%;
+            height: 80%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 2px solid #007bff; /* גבול תחתון */
+        }
+        canvas {
+            width: 100%;
+            height: auto;
+        }
+        #pdf-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        #pdf-viewer {
+            width: 90%;
+            height: 90%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .highlight {
+            background-color: #ffd700; /* צבע זהב להדגשה */
+            font-weight: bold; /* טקסט בולט */
+        }
+    </style>
+</head>
+<body>
+    <h1 id="h1">קיימים במערכת 0 קבצים</h1>
+    
+    <!-- שדה חיפוש -->
+    <div id="search-container">
+        <input type="text" id="search-input" placeholder="חפש קובץ...">
+        <button id="search-button">חפש</button>
+    </div>
+    
+    <div id="tiles-container"></div>
+
+    <!-- מודאל עבור תצוגת ה-PDF -->
+    <div id="pdf-modal">
+        <button class="close-button" onclick="closeModal()">סגור</button>
+        <iframe id="pdf-viewer" src=""></iframe>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <script>
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        let allFiles = [];
+        let displayedFiles = [];
+
+        fetch('/uploads')
+            .then(response => response.json())
+            .then(files => {
+                allFiles = files;
+                displayedFiles = files;
+                renderTiles(displayedFiles);
+            })
+            .catch(error => console.error('שגיאה:', error));
+        function renderTiles(files) {
+            const container = document.getElementById('tiles-container');
+            container.innerHTML = ''; 
+            files.forEach(file => {
+                
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'thumbnail';
+                const canvas = document.createElement('canvas');
+                thumbnail.appendChild(canvas);
+                tile.appendChild(thumbnail);
+
+                const url = `/uploads/${file}`;
+                loadPdfPreview(url, canvas);
+
+                const fileName = document.createElement('div');
+                fileName.innerHTML = highlightSearchTerm(file);
+                tile.appendChild(fileName);
+
+                tile.onclick = () => {
+                    const pdfViewer = document.getElementById('pdf-viewer');
+                    pdfViewer.src = url; 
+                    document.getElementById('pdf-modal').style.display = 'flex'; 
+                };
+
+                container.appendChild(tile);
+            });
+        }
+
+        function loadPdfPreview(url, canvas) {
+            const loadingTask = pdfjsLib.getDocument(url);
+            loadingTask.promise.then(pdf => {
+                pdf.getPage(1).then(page => {
+                    const scale = 0.5;
+                    const viewport = page.getViewport({ scale: scale });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+
+                    const renderContext = {
+                        canvasContext: canvas.getContext('2d'),
+                        viewport: viewport
+                    };
+                    page.render(renderContext);
+                });
+            }).catch(err => {
+                console.error('שגיאה בטעינת ה-PDF:', err);
+            });
+        }
+
+        document.getElementById('search-button').onclick = () => {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            searchInPdfs(searchTerm);
+        };
+
+        function searchInPdfs(searchTerm) {
+            displayedFiles = [];
+            const promises = allFiles.map(file => {
+                const url = `/uploads/${file}`;
+                return new Promise((resolve) => {
+                    const loadingTask = pdfjsLib.getDocument(url);
+                    loadingTask.promise.then(pdf => {
+                        let textContent = '';
+                        const numPages = pdf.numPages;
+
+                        const pagePromises = [];
+                        for (let i = 1; i <= numPages; i++) {
+                            pagePromises.push(pdf.getPage(i).then(page => {
+                                return page.getTextContent().then(content => {
+                                    content.items.forEach(item => {
+                                        textContent += item.str + ' ';
+                                    });
+                                });
+                            }));
+                        }
+
+                        Promise.all(pagePromises).then(() => {
+                            if (textContent.toLowerCase().includes(searchTerm)) {
+                                displayedFiles.push(file);
+                            }
+                            resolve();
+                        });
+                    }).catch(err => {
+                        console.error('שגיאה בטעינת ה-PDF:', err);
+                        resolve();
+                    });
+                });
+            });
+
+            Promise.all(promises).then(() => {
+                renderTiles(displayedFiles);
+            });
+            setTimeout(() => {
+            document.getElementById("h1").innerText="קיימים במערכת "+document.getElementsByClassName("tile").length+" קבצים";
+        }, 1000);
+        }
+
+        function highlightSearchTerm(file) {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            if (searchTerm && file.toLowerCase().includes(searchTerm)) {
+                return file.replace(new RegExp(searchTerm, 'gi'), (match) => `<span class="highlight">${match}</span>`);
+            }
+            return file;
+        }
+
+        function closeModal() {
+            document.getElementById('pdf-modal').style.display = 'none'; 
+            const pdfViewer = document.getElementById('pdf-viewer');
+            pdfViewer.src = ''; 
+        }
+        
+        setTimeout(() => {
+            document.getElementById("h1").innerText="קיימים במערכת "+document.getElementsByClassName("tile").length+" קבצים";
+        }, 100);
+    </script>
+</body>
+</html>
+           
